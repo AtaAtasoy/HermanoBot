@@ -4,6 +4,7 @@
   "description": "Discord Bot",
   "main": "index.js",
   "scripts": {
+    "prestart": "npm install",
     "start": "node index.js"
   },
   "repository": {
