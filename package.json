@@ -4,7 +4,7 @@
   "description": "Discord Bot",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -16,16 +16,11 @@
     "url": "https://github.com/AtaAtasoy/HermanoBot/issues"
   },
   "homepage": "https://github.com/AtaAtasoy/HermanoBot#readme",
-  "devDependencies": {
-    "eslint": "^7.13.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1"
-  },
   "dependencies": {
-    "discord.js": "^12.4.1",
+    "@discordjs/builders": "^0.5.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.22.0",
+    "discord.js": "^13.1.0",
     "dotenv": "^8.2.0"
-  },
-  "scripts": {
-    "start": "node index.js"
   }
 }

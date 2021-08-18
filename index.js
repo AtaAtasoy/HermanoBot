@@ -1,52 +1,69 @@
-/* eslint-disable consistent-return */
-/* eslint-disable global-require */
-/* eslint-disable no-console */
-// eslint-disable-next-line import/no-unresolved
-const Discord = require('discord.js');
+const { Client, Intents, Collection, ClientUser } = require('discord.js');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
 const dotenv = require('dotenv');
 const fs = require('fs');
-
 dotenv.config();
-const client = new Discord.Client();
+
 const token = process.env.TOKEN;
-const prefix = process.env.PREFIX;
-client.commands = new Discord.Collection();
-// Reading the commandFiles
-const commandFiles = fs.readdirSync('./commands').filter((file) => file.endsWith('.js'));
+const clientId = process.env.CLIENT_ID;
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const guildId = process.env.GUILD_ID;
+const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js')); 
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commands = [];
+client.commands = new Collection();
 
-// Setting the commands to the collection
-// eslint-disable-next-line no-restricted-syntax
+
+client.on('interactionCreate', async interaction => {
+	if (!interaction.isCommand()) return;
+
+	const command = client.commands.get(interaction.commandName);
+
+	if (!command) {
+    await interaction.reply({ content: `${interaction.commandName} is not supported!`, ephemeral: true });
+    return;
+  }
+
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	}
+});
+
+// Register commands and events
 for (const file of commandFiles) {
-  // eslint-disable-next-line import/no-dynamic-require
-  const command = require(`./commands/${file}`);
-
-  // set new item with the key as the command name and the value as the exported module
-  client.commands.set(command.name, command);
+	const command = require(`./commands/${file}`);
+	commands.push(command.data.toJSON());
+  client.commands.set(command.data.name, command);
 }
 
-client.once('ready', () => {
-  console.log('Client Ready!');
-});
+for (const file of eventFiles) { 
+	const event = require(`./events/${file}`);
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args));
+	}
+}
 
-client.on('message', (message) => {
-  if (!message.content.startsWith(prefix) || message.author.bot) return;
+const rest = new REST({ version: '9' }).setToken(token);
+ 
+(async () => {
+	try {
+		console.log('Started refreshing application (/) commands.');
 
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
-  const commandName = args.shift().toLowerCase();
+		await rest.put(
+			Routes.applicationGuildCommands(clientId, guildId),
+			{ body: commands },
+		);
 
-  if (!client.commands.has(commandName)) return;
-
-  const command = client.commands.get(commandName);
-
-  if (command.args && !args.length) {
-    return message.channel.send(`You did not provide any arguments ${message.author}!`);
-  }
-  try {
-    command.execute(message, args);
-  } catch (error) {
-    console.error(error);
-    message.reply('There was an error trying to execute that command!');
-  }
-});
+		console.log('Successfully reloaded application (/) commands.');
+	} catch (error) {
+		console.error(error);
+	}
+})();
 
 client.login(token);
