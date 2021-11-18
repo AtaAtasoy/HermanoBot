@@ -10,7 +10,7 @@ module.exports = {
         .setName('volleyball')
         .setDescription('Display the tickets that are on sale for the upcoming volleyball matches.'),
     async execute(interaction) {
-        const data;
+        const data = {};
         const options = {
             hostname: SCRAPER_API_URL,
             path: "/volleyball",
