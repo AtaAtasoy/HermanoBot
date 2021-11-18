@@ -7,6 +7,7 @@ dotenv.config();
 
 const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
+const scraperApiUrl = process.env.SCRAPER_API_URL;
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 const guildId = process.env.GUILD_ID;
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js')); 
@@ -67,3 +68,5 @@ const rest = new REST({ version: '9' }).setToken(token);
 })();
 
 client.login(token);
+
+module.exports = {scraperApiUrl};

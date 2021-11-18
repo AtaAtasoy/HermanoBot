@@ -1,30 +1,32 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const dotenv = require('dotenv');
-const http = require('http');
-dotenv.config();
+const axios = require('axios');
+dotenv.config({ path: '../.env' });
 
-const SCRAPER_API_URL = process.env.SCRAPER_URL;
+const scraperApiUrl = process.env.SCRAPER_API_URL;
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('volleyball')
-        .setDescription('Display the tickets that are on sale for the upcoming volleyball matches.'),
+        .setDescription('Display the dates of upcoming volleyball matches.'),
     async execute(interaction) {
-        const data = {};
-        const options = {
-            hostname: SCRAPER_API_URL,
-            path: "/volleyball",
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        };
+        let matches = [];
+        
+        axios.get(scraperApiUrl + "/volleyball")
+            .then((res) => {
+                matches = res.data
+            })
+            .then(() => {
+                console.log(matches);
 
-        const request = http.get(options, (req, res) => {
-            console.log(res.data)
-            data = res.data;
-        })
-
-        return interaction.reply(`Volleyball Matches: ${data}\n`);
+                let responseString = "";
+                matches.forEach(element => {
+                    responseString += element['title'].replace(/\s\s+/g, ' ') + ' ' + element['date'] + '\n';
+                });
+                return interaction.reply(`Sent request to: ${scraperApiUrl + "/volleyball"}\nVolleyball Matches:\n${responseString}\n`);
+            })
+            .catch(err => {
+                console.log(err)
+            })
     },
 };
