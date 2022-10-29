@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, ClientUser } = require('discord.js');
+const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const dotenv = require('dotenv');
@@ -8,7 +8,7 @@ dotenv.config();
 const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
 const scraperApiUrl = process.env.SCRAPER_API_URL;
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const guildId = process.env.GUILD_ID;
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js')); 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -50,7 +50,7 @@ for (const file of eventFiles) {
 	}
 }
 
-const rest = new REST({ version: '9' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(token);
  
 (async () => {
 	try {

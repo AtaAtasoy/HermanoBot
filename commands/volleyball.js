@@ -3,30 +3,28 @@ const dotenv = require('dotenv');
 const axios = require('axios');
 dotenv.config({ path: '../.env' });
 
-const scraperApiUrl = process.env.SCRAPER_API_URL;
+const scraperServer = process.env.SCRAPER_SERVER;
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('volleyball')
         .setDescription('Display the dates of upcoming volleyball matches.'),
     async execute(interaction) {
-        let matches = [];
-        
-        axios.get(scraperApiUrl + "/volleyball")
-            .then((res) => {
-                matches = res.data
-            })
-            .then(() => {
-                console.log(matches);
+        let msg = ''
+        let responseString = '';
 
-                let responseString = "";
-                matches.forEach(element => {
+        axios.get(scraperServer + "/volleyball")
+            .then((res) => res.data)
+            .then((data) => {
+                console.log(data);
+                data.forEach(element => {
                     responseString += element['title'].replace(/\s\s+/g, ' ') + ' ' + element['date'] + '\n';
                 });
-                return interaction.reply(`Sent request to: ${scraperApiUrl + "/volleyball"}\nVolleyball Matches:\n${responseString}\n`);
+                msg = `Volleyball Matches:\n${responseString}\n`
             })
+            .then(() => interaction.reply(msg))
             .catch(err => {
-                console.log(err)
+                console.error(err)
             })
     },
 };
