@@ -19,25 +19,27 @@ module.exports = {
             optiton.setName('sort-order')
                 .setDescription("The tweets can be sorted in terms of 'relevance' or 'recency'")
                 .addChoices(
-                    { name: "relevance", value: "relevance" },
+                    { name: "relevancy", value: "relevancy" },
                     { name: "recency", value: "recency" },
                 )
-        )
+                .setRequired(true)
+        ),
+        /** 
         .addIntegerOption(optiton =>
             optiton.setName('max-results')
                 .setDescription("Number of tweets to be displayed. Min. 10 Max. 500")
                 .setMaxValue(500)
                 .setMinValue(10)
-        ),
+        ),*/
     async execute(interaction) {
         const query = await interaction.options.getString("query");
         const sortOrder = await interaction.options.getString("sort-order") ?? 'relevance';
-        const maxResults = await interaction.options.getInteger("max-results") ?? 10;
+        //const maxResults = await interaction.options.getInteger("max-results") ?? 10;
 
         const params = new URLSearchParams({
             query: query,
             sortOrder: sortOrder,
-            maxResults: maxResults,
+            //maxResults: maxResults,
         }).toString();
 
         console.log("Params:", params)
@@ -55,6 +57,6 @@ module.exports = {
             .then(() => interaction.reply(msg))
             .catch(err => {
                 console.error(err)
-            })   
+            })
     },
 };
